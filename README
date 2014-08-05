@@ -1,0 +1,4 @@
+Instructions
+============
+* Run 'setup' to install MediaWiki and import [[en:Barack Obama]].
+* Run 'bench' to benchmark page rendering.
