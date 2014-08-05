@@ -1,0 +1,19 @@
+#!/bin/bash
+unset MW_INSTALL_PATH
+
+[ -r "mediawiki/LocalSettings.php" ] || {
+  echo 1>&2 "MediaWiki has not been configured. Please run ./setup."
+  exit 1
+}
+
+hhvm --no-config --mode server   \
+  -vServer.Type=fastcgi          \
+  -vServer.Port=9009             \
+  -vServer.SourceRoot=mediawiki  \
+  -vEval.Jit=true                \
+  -vPidFile=                     \
+  >/dev/null 2>&1 & pid=$!
+
+hhvm obamaBench.php
+
+kill -0 $pid && kill $pid

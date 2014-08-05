@@ -1,0 +1,44 @@
+#/bin/bash
+export MW_INSTALL_PATH="$PWD/mediawiki"
+extensions=(ParserFunctions Cite Scribunto wikihiero SyntaxHighlight_GeSHi)
+
+git_clone() {
+  [ -d "$2" ] || git clone "https://gerrit.wikimedia.org/r/$1" "$2"
+}
+
+check_mediawiki() {
+    php "${MW_INSTALL_PATH}/maintenance/sql.php" </dev/null &>/dev/null
+}
+
+page_exists() {
+    php "${MW_INSTALL_PATH}/maintenance/eval.php" <<< "exit( Title::newFromDBKey( '$1' )->exists() ? 0 : 1 );"
+}
+
+setup_mediawiki() {
+    rm -f "${MW_INSTALL_PATH}/{LocalSettings.php,wiki.sqlite}"
+    php "${MW_INSTALL_PATH}/maintenance/install.php" \
+      --dbtype="sqlite"              \
+      --dbname="wiki"                \
+      --dbpath="$MW_INSTALL_PATH"    \
+      --scriptpath="/w"              \
+      --confpath="$MW_INSTALL_PATH"  \
+      --pass="secret"                \
+      admin s3cr3t
+
+    for ext in "${extensions[@]}"; do
+        echo 'require_once "$IP/extensions/'"${ext}/${ext}"'.php";' >> "${MW_INSTALL_PATH}/LocalSettings.php"
+    done
+
+    php "$MW_INSTALL_PATH/maintenance/update.php" --quick
+}
+
+git_clone mediawiki/core "${MW_INSTALL_PATH}"
+for ext in "${extensions[@]}"; do
+    git_clone "mediawiki/extensions/${ext}" "${MW_INSTALL_PATH}/extensions/${ext}"
+done
+
+check_mediawiki || setup_mediawiki
+
+if ! page_exists "Barack_Obama"; then
+  php "${MW_INSTALL_PATH}/maintenance/importDump.php" obama.xml
+fi

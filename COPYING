@@ -1,0 +1,7 @@
+The file obama.xml contains content from <https://en.wikipedia.org/wiki/Barack_Obama>,
+which is available under the Creative Commons Attribution-ShareAlike License.
+Please consult the history of the original page to see a list of its authors.
+
+The file lib/FastCGIClient.php is part of PHP-FastCGI-Client
+(<https://github.com/adoy/PHP-FastCGI-Client/>).
+Copyright (c) 2010-2013 Pierrick Charron. Released under the MIT license.
